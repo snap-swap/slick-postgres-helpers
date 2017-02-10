@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%date{ISO8601} %-5level %logger{36} [%X{akkaSource}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="stdout"/>
+    </root>
+
+    <logger name="slick" additivity="false" level="info">
+        <appender-ref ref="stdout"/>
+    </logger>
+    <logger name="org.flywaydb" additivity="false" level="info">
+        <appender-ref ref="stdout"/>
+    </logger>
+</configuration>

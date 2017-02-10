@@ -11,7 +11,7 @@ class DbRunHelperSpec
     with Matchers
     with OneInstancePerTest {
 
-  import DbRunHelper._
+  import runSafe._
 
   val epg: EmbeddedPostgres = EmbeddedPostgres.start
   val db: Database = Database.forDataSource(epg.getPostgresDatabase)
