@@ -4,18 +4,18 @@ import java.sql.BatchUpdateException
 
 import com.snapswap.db.errors.{DataError, EntityNotFound, InternalDataError, OverrideNotAllowed}
 import org.postgresql.util.PSQLException
+import slick.basic.BasicBackend
 import slick.dbio.{DBIOAction, NoStream}
 import slick.util.TreePrinter
-import slick.jdbc.PostgresProfile.api._
 
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
-trait DbRunHelper {
+trait DbRunSafe {
 
   private[this] val pSQLExceptionErrCodes = Set("23505", "23503")
 
-  implicit class SilentDbImporter(db: Database) {
+  implicit class SilentDbImporter[D <: BasicBackend#DatabaseDef](db: D) {
     def runSafe[R](a: DBIOAction[R, NoStream, Nothing])(implicit ec: ExecutionContext): Future[R] = {
       def additionalInfo = TreePrinter.default.get(a)
 
@@ -56,4 +56,4 @@ trait DbRunHelper {
   }
 }
 
-object DbRunHelper extends DbRunHelper
+object DbRunHelper extends DbRunSafe

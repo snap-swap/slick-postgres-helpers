@@ -3,7 +3,8 @@ package com.snapswap.db.helpers.runner
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.snapswap.db.errors.{EntityNotFound, InternalDataError}
 import org.scalatest.{AsyncWordSpec, Matchers, OneInstancePerTest}
-import slick.jdbc.PostgresProfile.api._
+//import slick.jdbc.PostgresProfile.api._
+import com.snapswap.db.driver.ExtendedPostgresProfile.api._
 import slick.lifted.TableQuery
 
 class DbRunHelperSpec
