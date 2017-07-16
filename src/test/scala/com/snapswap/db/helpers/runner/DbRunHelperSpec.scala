@@ -15,7 +15,7 @@ class DbRunHelperSpec
   import runSafe._
 
   val epg: EmbeddedPostgres = EmbeddedPostgres.start
-  val db: Database = Database.forDataSource(epg.getPostgresDatabase)
+  val db: Database = Database.forDataSource(epg.getPostgresDatabase, None)
   val tbl: TableQuery[TestTable] = TableQuery[TestTable]
 
   "SlickRunWrapper" should {

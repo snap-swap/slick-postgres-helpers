@@ -2,7 +2,7 @@ name := "slick-postgres-helpers"
 
 organization := "com.snapswap"
 
-version := "1.0.2"
+version := "1.0.3"
 
 scalaVersion := "2.11.8"
 
@@ -25,8 +25,8 @@ scalacOptions := Seq(
 )
 
 libraryDependencies ++= {
-  val slickV = "3.2.0-M1"
-  val slickPgV = "0.15.0-M4"
+  val slickV = "3.2.0"
+  val slickPgV = "0.15.1"
   Seq(
     "org.postgresql" % "postgresql" % "9.4.1212" % "provided",
     "com.typesafe.slick" %% "slick" % slickV % "provided",
