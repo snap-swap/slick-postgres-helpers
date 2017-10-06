@@ -2,7 +2,7 @@ name := "slick-postgres-helpers"
 
 organization := "com.snapswap"
 
-version := "1.0.4"
+version := "1.0.5"
 
 scalaVersion := "2.11.8"
 
@@ -28,11 +28,11 @@ libraryDependencies ++= {
   val slickV = "3.2.1"
   val slickPgV = "0.15.3"
   Seq(
-    "org.postgresql" % "postgresql" % "9.4.1212" % "provided",
+    "org.postgresql" % "postgresql" % "42.1.4" % "provided",
     "com.typesafe.slick" %% "slick" % slickV % "provided",
     "com.github.tminglei" %% "slick-pg" % slickPgV,
     "com.github.tminglei" %% "slick-pg_spray-json" % slickPgV,
-    "com.opentable.components" % "otj-pg-embedded" % "0.7.1" % "test",
+    "com.opentable.components" % "otj-pg-embedded" % "0.9.0" % "test",
     "org.scalatest" %% "scalatest" % "3.0.1" % "test",
     "ch.qos.logback" % "logback-classic" % "1.1.7" % "test"
   )
