@@ -1,5 +1,8 @@
 package com.snapswap.db.driver
 
+import java.sql.Timestamp
+import java.time.{ZoneOffset, ZonedDateTime}
+
 import com.github.tminglei.slickpg._
 import slick.basic.Capability
 import spray.json._
@@ -8,12 +11,10 @@ import spray.json._
 trait ExtendedPostgresProfile
   extends ExPostgresProfile
     with PgArraySupport
-    with PgDate2Support
     with PgRangeSupport
     with PgHStoreSupport
     with PgSprayJsonSupport
     with PgSearchSupport
-    //with PgPostGISSupport
     with PgNetSupport
     with PgLTreeSupport {
 
@@ -26,7 +27,6 @@ trait ExtendedPostgresProfile
   override val api = MyAPI
 
   object MyAPI extends API with ArrayImplicits
-    with DateTimeImplicits
     with JsonImplicits
     with NetImplicits
     with LTreeImplicits
@@ -40,6 +40,11 @@ trait ExtendedPostgresProfile
         (s) => utils.SimpleArrayUtils.fromString[JsValue](_.parseJson)(s).orNull,
         (v) => utils.SimpleArrayUtils.mkString[JsValue](_.toString())(v)
       ).to(_.toList)
+
+    implicit val JavaZonedDateTimeMapper = MappedColumnType.base[ZonedDateTime, Timestamp](
+      l => Timestamp.from(l.toInstant),
+      t => ZonedDateTime.ofInstant(t.toInstant, ZoneOffset.UTC)
+    )
   }
 
 }

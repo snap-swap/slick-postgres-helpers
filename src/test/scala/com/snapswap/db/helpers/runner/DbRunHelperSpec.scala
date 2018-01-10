@@ -1,10 +1,11 @@
 package com.snapswap.db.helpers.runner
 
+import java.time.{Clock, ZonedDateTime}
+
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import com.snapswap.db.driver.ExtendedPostgresProfile.api._
 import com.snapswap.db.errors.{EntityNotFound, InternalDataError}
 import org.scalatest.{AsyncWordSpec, Matchers, OneInstancePerTest}
-//import slick.jdbc.PostgresProfile.api._
-import com.snapswap.db.driver.ExtendedPostgresProfile.api._
 import slick.lifted.TableQuery
 
 class DbRunHelperSpec
@@ -41,21 +42,39 @@ class DbRunHelperSpec
       }
     }
     "when success - return Future result" in {
+      val now: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
+
       val action = for {
         _ <- db.runSafe(tbl.schema.create)
-        result <- db.runSafe((tbl += 1).andThen(tbl.map(_.IntColumn).result))
+        result <- db.runSafe((tbl += ((1, now))).andThen(tbl.map(_.IntColumn).result))
       } yield result
 
       action.map { result =>
         result should equal(Seq(1))
       }
     }
+
+    "Correct work with ZonedDateTime" in {
+      val now: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
+
+      val action = for {
+        _ <- db.runSafe(tbl.schema.create)
+        _ <- db.runSafe(tbl += ((1, now)))
+        result <- db.runSafe(tbl.map(_.ZonedDateTimeColumn).result)
+      } yield result
+
+      action.map { result: Seq[ZonedDateTime] =>
+        result should contain(now)
+      }
+    }
   }
 
-  class TestTable(tag: Tag) extends Table[Int](tag, "TestTable") {
+  class TestTable(tag: Tag) extends Table[(Int, ZonedDateTime)](tag, "TestTable") {
     def IntColumn = column[Int]("IntColumn")
 
-    def * = IntColumn
+    def ZonedDateTimeColumn = column[ZonedDateTime]("ZonedDateTimeColumn")
+
+    def * = (IntColumn, ZonedDateTimeColumn)
   }
 
 }
