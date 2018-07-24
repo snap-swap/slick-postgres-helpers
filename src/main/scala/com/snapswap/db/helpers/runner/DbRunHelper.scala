@@ -22,8 +22,8 @@ trait DbRunSafe {
       db.run(a).recoverWith {
         case ex: UnsupportedOperationException if ex.getMessage == "empty.head" => // When query returns no results then UnsupportedOperationException("empty.head") is thrown instead of NoSuchElementException
           Future.failed[R](EntityNotFound(dbDetails = Some(additionalInfo)))
-        case _: NoSuchElementException =>
-          Future.failed[R](EntityNotFound(dbDetails = Some(additionalInfo)))
+        case ex: NoSuchElementException =>
+          Future.failed[R](EntityNotFound(details = ex.getMessage, dbDetails = Some(additionalInfo)))
         case ex: PSQLException =>
           // wrap with Option to avoid NullPointerException
           Option(ex.getServerErrorMessage).flatMap(msg => Option(msg.getSQLState)) match {
