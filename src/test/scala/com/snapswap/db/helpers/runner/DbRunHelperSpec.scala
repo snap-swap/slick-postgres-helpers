@@ -1,15 +1,15 @@
 package com.snapswap.db.helpers.runner
 
-import java.time.{Clock, ZonedDateTime}
+import java.time.{Clock, ZoneOffset, ZonedDateTime}
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.snapswap.db.driver.ExtendedPostgresProfile.api._
 import com.snapswap.db.errors.{EntityNotFound, InternalDataError}
-import org.scalatest.{AsyncWordSpec, Matchers, OneInstancePerTest}
+import org.scalatest.{AsyncWordSpecLike, Matchers, OneInstancePerTest}
 import slick.lifted.TableQuery
 
 class DbRunHelperSpec
-  extends AsyncWordSpec
+  extends AsyncWordSpecLike
     with Matchers
     with OneInstancePerTest {
 
@@ -54,17 +54,18 @@ class DbRunHelperSpec
       }
     }
 
-    "Correct work with ZonedDateTime" in {
-      val now: ZonedDateTime = ZonedDateTime.now(Clock.systemUTC())
+    "correctly work with ZonedDateTime" in {
+      val offset = ZoneOffset.ofHours(10)
+      val now: ZonedDateTime = ZonedDateTime.now(offset)
 
-      val action = for {
+      for {
         _ <- db.runSafe(tbl.schema.create)
         _ <- db.runSafe(tbl += ((1, now)))
-        result <- db.runSafe(tbl.map(_.ZonedDateTimeColumn).result)
-      } yield result
-
-      action.map { result: Seq[ZonedDateTime] =>
-        result should contain(now)
+        result <- db.runSafe(tbl.map(_.ZonedDateTimeColumn).result.head)
+      } yield {
+        result.getOffset shouldBe ZoneOffset.UTC
+        result.toOffsetDateTime.atZoneSameInstant(offset) shouldBe now
+        result shouldBe now.toOffsetDateTime.atZoneSameInstant(ZoneOffset.UTC)
       }
     }
   }

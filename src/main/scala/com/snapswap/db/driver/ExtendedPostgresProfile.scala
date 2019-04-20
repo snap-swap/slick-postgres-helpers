@@ -24,9 +24,12 @@ trait ExtendedPostgresProfile
   override protected def computeCapabilities: Set[Capability] =
     super.computeCapabilities + slick.jdbc.JdbcCapabilities.insertOrUpdate
 
-  override val api = MyAPI
+  override val api: ApiWithExtendedTypeSupport = ApiWithExtendedTypeSupport
 
-  object MyAPI extends API with ArrayImplicits
+  object ApiWithExtendedTypeSupport extends ApiWithExtendedTypeSupport
+
+  trait ApiWithExtendedTypeSupport extends API
+    with ArrayImplicits
     with JsonImplicits
     with NetImplicits
     with LTreeImplicits
@@ -34,16 +37,18 @@ trait ExtendedPostgresProfile
     with HStoreImplicits
     with SearchImplicits
     with SearchAssistants {
-    implicit val strListTypeMapper = new SimpleArrayJdbcType[String]("text").to(_.toList)
-    implicit val playJsonArrayTypeMapper =
+
+    implicit val strListTypeMapper: BaseColumnType[List[String]] = new SimpleArrayJdbcType[String]("text").to(_.toList)
+
+    implicit val playJsonArrayTypeMapper: BaseColumnType[List[JsValue]] =
       new AdvancedArrayJdbcType[JsValue](pgjson,
-        (s) => utils.SimpleArrayUtils.fromString[JsValue](_.parseJson)(s).orNull,
-        (v) => utils.SimpleArrayUtils.mkString[JsValue](_.toString())(v)
+        s => utils.SimpleArrayUtils.fromString[JsValue](_.parseJson)(s).orNull,
+        v => utils.SimpleArrayUtils.mkString[JsValue](_.toString())(v)
       ).to(_.toList)
 
-    implicit val JavaZonedDateTimeMapper = MappedColumnType.base[ZonedDateTime, Timestamp](
-      l => Timestamp.from(l.toInstant),
-      t => ZonedDateTime.ofInstant(t.toInstant, ZoneOffset.UTC)
+    implicit val JavaZonedDateTimeMapper: BaseColumnType[ZonedDateTime] = MappedColumnType.base[ZonedDateTime, Timestamp](
+      z => Timestamp.valueOf(z.toInstant.atZone(ZoneOffset.UTC).toLocalDateTime),
+      t => t.toLocalDateTime.atZone(ZoneOffset.UTC)
     )
   }
 
